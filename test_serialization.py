@@ -70,7 +70,14 @@ if __name__ == '__main__':
     iterdump_time = timeit.timeit(test_iterdump, number=100)
     seconds, milliseconds, microseconds = expand_seconds(iterdump_time/100)
     print(f'iterdump_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
-        
+    
+    pickle_time = timeit.timeit(test_pickle, number=100)
+    seconds, milliseconds, microseconds = expand_seconds(pickle_time/100)
+    print(f'pickle_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
+    
+    JSON_time = timeit.timeit(test_JSON, number=100)
+    seconds, milliseconds, microseconds = expand_seconds(JSON_time/100)
+    print(f'JSON_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
     
     
     
