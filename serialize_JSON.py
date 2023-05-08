@@ -3,6 +3,7 @@ import json
 
 def serialize(conn: sqlite3.Connection, filename: str) -> None:
     cursor = conn.cursor()
+    cursor.execute('''SELECT * FROM users''')
     allrows = cursor.fetchall()
     data = [{'id': row[0], 'name': row[1], 'age': row[2]} for row in allrows]
 

@@ -8,27 +8,24 @@ from faker import Faker
 
 
 fake = Faker()
-sample_data = [
+sample_USERS = [
     (i, fake.name(), random.randint(20, 40))
     for i in range(random.randint(4, 100))
 ]
-    
-
-
 
 def create_DB()-> sqlite3.Connection:
     DBconnection = sqlite3.connect(':memory:')
     DBcursor = DBconnection.cursor()
     DBcursor.execute('''CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)''')
     DBconnection.commit()
-    DBcursor.executemany('''INSERT INTO users VALUES (?, ?, ?)''', sample_data)
+    DBcursor.executemany('''INSERT INTO users VALUES (?, ?, ?)''', sample_USERS)
     DBconnection.commit()
     return DBconnection
 
 def check_DB(connection: sqlite3.Connection)-> bool:
     newcursor = connection.cursor()
     newcursor.execute('''SELECT * FROM users''')
-    if newcursor.fetchall() == sample_data:
+    if newcursor.fetchall() == sample_USERS:
         return True
 
 def expand_seconds(s: float)->tuple:
@@ -40,7 +37,7 @@ def expand_seconds(s: float)->tuple:
 
 def test_iterdump():
     connection = create_DB()  
-    filename = 'iterdump.sql'
+    filename = 'serialized_db.sql'
     serialize_iterdump.serialize(connection, filename)
     del connection
     
@@ -50,7 +47,7 @@ def test_iterdump():
     
 def test_pickle():
     connection = create_DB()  
-    filename = 'pickle.pkl'
+    filename = 'serialized_db.pkl'
     serialize_pickle.serialize(connection, filename)
     del connection
     
