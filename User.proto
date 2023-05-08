@@ -1,0 +1,11 @@
+//  use `.\protocolbuffers\windows64\protoc --python_out=. User.proto` to build User_pb2.py
+
+syntax = "proto3";
+message User {
+    int32 id = 1;
+    string name = 2;
+    int32 age = 3;
+}
+message Database {
+  repeated User users = 1;
+}

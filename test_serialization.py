@@ -4,6 +4,9 @@ import timeit
 import serialize_iterdump
 import serialize_pickle
 import serialize_JSON
+import serialize_msgpack
+import serialize_CSV
+import serialize_potocolbuffers
 from faker import Faker
 
 
@@ -65,19 +68,59 @@ def test_JSON():
     assert check_DB(newconnection)
     newconnection.close()    
     
+def test_msgpack():
+    connection = create_DB()  
+    filename = 'serialized_db.msgpack'
+    serialize_msgpack.serialize(connection, filename)
+    del connection
+    
+    newconnection = serialize_msgpack.deserialize(filename)
+    assert check_DB(newconnection)
+    newconnection.close()
+
+def test_CSV():
+    connection = create_DB()  
+    filename = 'serialized_db.csv'
+    serialize_CSV.serialize(connection, filename)
+    del connection
+    
+    newconnection = serialize_CSV.deserialize(filename)
+    assert check_DB(newconnection)
+    newconnection.close()
+
+def test_protocolbuffers():
+    connection = create_DB()  
+    filename = 'serialized_db.pb'
+    serialize_potocolbuffers.serialize(connection, filename)
+    del connection
+    
+    newconnection = serialize_potocolbuffers.deserialize(filename)
+    assert check_DB(newconnection)
+    newconnection.close()
 
 if __name__ == '__main__':
-    iterdump_time = timeit.timeit(test_iterdump, number=100)
-    seconds, milliseconds, microseconds = expand_seconds(iterdump_time/100)
+    
+    iterations = 1000
+    iterdump_time = timeit.timeit(test_iterdump, number=iterations)
+    seconds, milliseconds, microseconds = expand_seconds(iterdump_time/iterations)
     print(f'iterdump_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
     
-    pickle_time = timeit.timeit(test_pickle, number=100)
-    seconds, milliseconds, microseconds = expand_seconds(pickle_time/100)
+    pickle_time = timeit.timeit(test_pickle, number=iterations)
+    seconds, milliseconds, microseconds = expand_seconds(pickle_time/iterations)
     print(f'pickle_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
     
-    JSON_time = timeit.timeit(test_JSON, number=100)
-    seconds, milliseconds, microseconds = expand_seconds(JSON_time/100)
+    JSON_time = timeit.timeit(test_JSON, number=iterations)
+    seconds, milliseconds, microseconds = expand_seconds(JSON_time/iterations)
     print(f'JSON_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
     
+    msgpack_time = timeit.timeit(test_msgpack, number=iterations)
+    seconds, milliseconds, microseconds = expand_seconds(msgpack_time/iterations)
+    print(f'msgpack_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
     
+    CSV_time = timeit.timeit(test_CSV, number=iterations)
+    seconds, milliseconds, microseconds = expand_seconds(CSV_time/iterations)
+    print(f'CSV_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
     
+    protocolbuffers_time = timeit.timeit(test_protocolbuffers, number=iterations)
+    seconds, milliseconds, microseconds = expand_seconds(protocolbuffers_time/iterations)
+    print(f'protocolbuffers_time: {seconds} seconds, {milliseconds} milliseconds, {microseconds} microseconds')
