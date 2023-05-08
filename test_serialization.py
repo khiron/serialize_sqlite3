@@ -1,7 +1,19 @@
-import datetime
+import random
 import sqlite3
 import timeit
-import iterdump
+import serialize_iterdump
+import serialize_pickle
+import serialize_JSON
+from faker import Faker
+
+
+fake = Faker()
+sample_data = [
+    (i, fake.name(), random.randint(20, 40))
+    for i in range(random.randint(4, 100))
+]
+    
+
 
 
 def create_DB()-> sqlite3.Connection:
@@ -9,7 +21,6 @@ def create_DB()-> sqlite3.Connection:
     DBcursor = DBconnection.cursor()
     DBcursor.execute('''CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)''')
     DBconnection.commit()
-    sample_data = [(1, 'Alice', 30), (2, 'Bob', 25), (3, 'Charlie', 35)]
     DBcursor.executemany('''INSERT INTO users VALUES (?, ?, ?)''', sample_data)
     DBconnection.commit()
     return DBconnection
@@ -17,7 +28,7 @@ def create_DB()-> sqlite3.Connection:
 def check_DB(connection: sqlite3.Connection)-> bool:
     newcursor = connection.cursor()
     newcursor.execute('''SELECT * FROM users''')
-    if newcursor.fetchall() == [(1, 'Alice', 30), (2, 'Bob', 25), (3, 'Charlie', 35)]:
+    if newcursor.fetchall() == sample_data:
         return True
 
 def expand_seconds(s: float)->tuple:
@@ -30,12 +41,32 @@ def expand_seconds(s: float)->tuple:
 def test_iterdump():
     connection = create_DB()  
     filename = 'iterdump.sql'
-    iterdump.serialize(connection, filename)
+    serialize_iterdump.serialize(connection, filename)
     del connection
     
-    newconnection = iterdump.deserialize(filename)
+    newconnection = serialize_iterdump.deserialize(filename)
     assert check_DB(newconnection)
     newconnection.close()
+    
+def test_pickle():
+    connection = create_DB()  
+    filename = 'pickle.pkl'
+    serialize_pickle.serialize(connection, filename)
+    del connection
+    
+    newconnection = serialize_pickle.deserialize(filename)
+    assert check_DB(newconnection)
+    newconnection.close()    
+
+def test_JSON():
+    connection = create_DB()  
+    filename = 'serialized_db.json'
+    serialize_JSON.serialize(connection, filename)
+    del connection
+    
+    newconnection = serialize_JSON.deserialize(filename)
+    assert check_DB(newconnection)
+    newconnection.close()    
     
 
 if __name__ == '__main__':
